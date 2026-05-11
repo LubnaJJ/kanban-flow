@@ -1,10 +1,10 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "buildCommand": "npm install -g pnpm@9 && cd ../.. && pnpm install --no-frozen-lockfile && cd apps/web && pnpm build"
+    "buildCommand": "npm install -g pnpm@9 && pnpm install --no-frozen-lockfile && pnpm --filter web build"
   },
   "deploy": {
-    "startCommand": "node_modules/.bin/next start",
+    "startCommand": "pnpm --filter web start",
     "restartPolicyType": "ON_FAILURE"
   }
 }
