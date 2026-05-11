@@ -46,14 +46,15 @@ export default function LoginPage() {
     }));
 
     function resetMeteor(m: typeof meteors[0]) {
-      m.x = Math.random() * canvas.width * 0.7;
-      m.y = Math.random() * canvas.height * 0.4;
-      m.alpha = 1;
-      m.active = true;
-      m.len = Math.random() * 150 + 80;
-      m.speed = Math.random() * 10 + 7;
-      m.timer = Math.random() * 400 + 200;
-    }
+  if (!canvas) return;
+  m.x = Math.random() * canvas.width * 0.7;
+  m.y = Math.random() * canvas.height * 0.4;
+  m.alpha = 1;
+  m.active = true;
+  m.len = Math.random() * 150 + 80;
+  m.speed = Math.random() * 10 + 7;
+  m.timer = Math.random() * 400 + 200;
+}
 
     let raf: number;
 
