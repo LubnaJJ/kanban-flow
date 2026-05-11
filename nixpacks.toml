@@ -3,14 +3,14 @@ nixPkgs = ["nodejs_18"]
 
 [phases.install]
 cmds = [
-  "npm install -g pnpm@9",
-  "pnpm install --no-frozen-lockfile"
+  "npm install -g pnpm@9 --prefix /usr/local",
+  "export PATH=$PATH:/usr/local/bin && pnpm install --no-frozen-lockfile"
 ]
 
 [phases.build]
 cmds = [
-  "pnpm --filter api exec prisma generate",
-  "pnpm --filter api build"
+  "export PATH=$PATH:/usr/local/bin && pnpm --filter api exec prisma generate",
+  "export PATH=$PATH:/usr/local/bin && pnpm --filter api build"
 ]
 
 [start]
