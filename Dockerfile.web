@@ -9,7 +9,7 @@ COPY pnpm-lock.yaml ./
 COPY package.json ./
 COPY packages/ ./packages/
 COPY apps/web/ ./apps/web/
-COPY apps/api/package.json ./apps/api/package.json
+COPY apps/api/ ./apps/api/
 
 RUN pnpm install --no-frozen-lockfile
 
