@@ -14,4 +14,4 @@ cmds = [
 ]
 
 [start]
-cmd = "pnpm --filter api exec prisma migrate deploy && pnpm --filter api exec prisma db seed && node apps/api/dist/index.js"
+cmd = "export PATH=$PATH:/usr/local/bin:/app/node_modules/.bin && npx prisma migrate deploy --schema=apps/api/prisma/schema.prisma && npx prisma db seed --schema=apps/api/prisma/schema.prisma && node apps/api/dist/index.js"
