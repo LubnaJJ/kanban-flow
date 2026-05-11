@@ -112,12 +112,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {/* Main content */}
       <main style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', paddingTop: 0 }}>
         {/* Push content down on mobile to avoid topbar overlap */}
-        <style>{`
-          @media (max-width: 768px) {
-            main > * { padding-top: 52px; }
-            main > *:first-child { padding-top: 52px; }
-          }
-        `}</style>
+        <style dangerouslySetInnerHTML={{ __html: `
+  @media (max-width: 768px) {
+    main > * { padding-top: 52px; }
+    main > *:first-child { padding-top: 52px; }
+  }
+` }} />
         {children}
       </main>
     </div>
