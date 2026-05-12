@@ -90,10 +90,25 @@ export default function DashboardPage() {
         .board-card:hover .card-actions { opacity: 1 !important; }
         .mo { position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,0.5); }
         .dash-input:focus { border-color: rgba(234,163,0,0.6) !important; box-shadow: 0 0 0 3px rgba(234,163,0,0.1) !important; outline: none; }
+        @media (max-width: 480px) {
+          .dash-grid { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       {/* Header */}
-      <div style={{ background: 'white', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '18px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+      <div style={{
+        background: 'white',
+        borderBottom: '1px solid rgba(0,0,0,0.08)',
+        padding: '14px 20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        position: 'sticky',
+        top: 0,
+        zIndex: 10,
+        gap: '12px',
+        flexWrap: 'wrap',
+      }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
             <span style={{ color: '#0d1b35', fontWeight: 800, fontSize: '15px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>OUTERSPACE</span>
@@ -103,23 +118,23 @@ export default function DashboardPage() {
             Welcome back, <strong style={{ color: '#0d1b35' }}>{user?.name?.split(' ')[0]}</strong> · {boards.length} board{boards.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ padding: '5px 12px', borderRadius: '20px', background: 'rgba(234,163,0,0.08)', border: '1px solid rgba(234,163,0,0.3)', color: '#F5C400', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <div style={{ padding: '4px 10px', borderRadius: '20px', background: 'rgba(234,163,0,0.08)', border: '1px solid rgba(234,163,0,0.3)', color: '#F5C400', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {user?.role}
           </div>
           {isPM && (
             <button onClick={() => setShowCreate(true)}
-              style={{ height: '40px', padding: '0 18px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '7px', background: 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '13px', border: 'none', cursor: 'pointer', transition: 'all 0.2s' }}
+              style={{ height: '36px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '12px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
               onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
               onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
-              <Plus size={15} /> New Board
+              <Plus size={14} /> New Board
             </button>
           )}
         </div>
       </div>
 
       {/* Content */}
-      <div style={{ padding: '32px', animation: 'fadeUp 0.5s ease both' }}>
+      <div style={{ padding: 'clamp(16px, 4vw, 32px)', animation: 'fadeUp 0.5s ease both' }}>
         <h1 style={{ color: '#0d1b35', fontSize: '20px', fontWeight: 700, margin: '0 0 4px' }}>My Boards</h1>
         <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 24px' }}>Manage and track all your projects</p>
 
@@ -144,7 +159,7 @@ export default function DashboardPage() {
             )}
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px,1fr))', gap: '16px' }}>
+          <div className="dash-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px,1fr))', gap: '16px' }}>
             {boards.map(board => {
               const accent = accentColors[board.name.charCodeAt(0) % accentColors.length];
               const memberCount = board.members?.length || 0;
@@ -210,7 +225,7 @@ export default function DashboardPage() {
       {/* Create Modal */}
       {showCreate && (
         <div className="mo" onClick={() => setShowCreate(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', padding: '32px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 30px 80px rgba(0,0,0,0.2)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', padding: '28px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 30px 80px rgba(0,0,0,0.2)' }}>
             <h2 style={{ color: '#0d1b35', fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Create new board</h2>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 24px' }}>Set up a new project workspace for your team</p>
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -236,7 +251,7 @@ export default function DashboardPage() {
       {/* Edit Modal */}
       {showEdit && editingBoard && (
         <div className="mo" onClick={() => { setShowEdit(false); setEditingBoard(null); }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', padding: '32px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 30px 80px rgba(0,0,0,0.2)' }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', padding: '28px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 30px 80px rgba(0,0,0,0.2)' }}>
             <h2 style={{ color: '#0d1b35', fontSize: '18px', fontWeight: 700, margin: '0 0 6px' }}>Rename board</h2>
             <p style={{ color: '#64748b', fontSize: '13px', margin: '0 0 24px' }}>Update the name and description</p>
             <form onSubmit={handleUpdate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
