@@ -96,42 +96,24 @@ export default function DashboardPage() {
       `}</style>
 
       {/* Header */}
-      <div style={{
-        background: 'white',
-        borderBottom: '1px solid rgba(0,0,0,0.08)',
-        padding: '14px 20px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 10,
-        gap: '12px',
-        flexWrap: 'wrap',
-      }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
-            <span style={{ color: '#0d1b35', fontWeight: 800, fontSize: '15px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>OUTERSPACE</span>
-            <span style={{ color: '#F5C400', fontWeight: 800, fontSize: '15px', letterSpacing: '0.1em', textTransform: 'uppercase' }}>DIGITAL</span>
-          </div>
-          <p style={{ color: '#64748b', fontSize: '12px', margin: 0 }}>
-            Welcome back, <strong style={{ color: '#0d1b35' }}>{user?.name?.split(' ')[0]}</strong> · {boards.length} board{boards.length !== 1 ? 's' : ''}
-          </p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-          <div style={{ padding: '4px 10px', borderRadius: '20px', background: 'rgba(234,163,0,0.08)', border: '1px solid rgba(234,163,0,0.3)', color: '#F5C400', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {user?.role}
-          </div>
-          {isPM && (
-            <button onClick={() => setShowCreate(true)}
-              style={{ height: '36px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '12px', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-1px)')}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}>
-              <Plus size={14} /> New Board
-            </button>
-          )}
-        </div>
-      </div>
+<div style={{ background: 'white', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '14px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 10 }}>
+  <div>
+    <p style={{ color: '#64748b', fontSize: '13px', margin: 0 }}>
+      Welcome back, <strong style={{ color: '#0d1b35' }}>{user?.name?.split(' ')[0]}</strong>
+    </p>
+  </div>
+  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+    <span style={{ padding: '4px 10px', borderRadius: '20px', background: 'rgba(234,163,0,0.08)', border: '1px solid rgba(234,163,0,0.3)', color: '#F5C400', fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' as const }}>
+      {user?.role}
+    </span>
+    {isPM && (
+      <button onClick={() => setShowCreate(true)}
+        style={{ height: '34px', padding: '0 14px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '12px', border: 'none', cursor: 'pointer' }}>
+        <Plus size={14} /> New Board
+      </button>
+    )}
+  </div>
+</div>
 
       {/* Content */}
       <div style={{ padding: 'clamp(16px, 4vw, 32px)', animation: 'fadeUp 0.5s ease both' }}>
