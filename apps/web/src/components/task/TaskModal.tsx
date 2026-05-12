@@ -142,11 +142,27 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-4 pt-12 overflow-auto" onClick={onClose}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl" onClick={e => e.stopPropagation()}>
+      <style>{`
+        @media (max-width: 640px) {
+          .task-modal-body { flex-direction: column !important; }
+          .task-modal-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #f1f5f9; padding: 16px !important; }
+          .task-modal-sidebar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+          .task-modal-main { max-height: none !important; }
+          .task-modal-container { margin: 0 !important; border-radius: 16px 16px 0 0 !important; position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important; max-width: 100% !important; max-height: 92vh !important; overflow-y: auto !important; }
+          .task-modal-overlay { padding: 0 !important; align-items: flex-end !important; }
+        }
+      `}</style>
 
+      <div
+        className="task-modal-overlay fixed inset-0 z-50 bg-black/60 flex items-start justify-center p-4 pt-12 overflow-auto"
+        onClick={onClose}
+      >
+        <div
+          className="task-modal-container bg-white rounded-2xl shadow-2xl w-full max-w-3xl"
+          onClick={e => e.stopPropagation()}
+        >
           {/* Header */}
-          <div className="flex items-start justify-between p-6 pb-4 border-b">
+          <div className="flex items-start justify-between p-5 pb-4 border-b">
             <div className="flex-1 mr-4">
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <PriorityBadge priority={liveTask.priority} />
@@ -154,16 +170,16 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
                   <span key={label} className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">{label}</span>
                 ))}
               </div>
-              <h2 className="text-xl font-bold text-slate-900">{liveTask.title}</h2>
+              <h2 className="text-lg font-bold text-slate-900 leading-tight">{liveTask.title}</h2>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               {isPM && (
-                <button onClick={() => setShowEdit(true)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors" title="Edit task">
+                <button onClick={() => setShowEdit(true)} className="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors">
                   <Pencil className="w-4 h-4" />
                 </button>
               )}
               {isPM && (
-                <button onClick={handleDeleteTask} className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Delete task">
+                <button onClick={handleDeleteTask} className="p-2 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               )}
@@ -173,9 +189,11 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
             </div>
           </div>
 
-          <div className="flex divide-x">
+          {/* Body — stacks on mobile */}
+          <div className="task-modal-body flex divide-x">
+
             {/* Left: main content */}
-            <div className="flex-1 p-6 space-y-6 overflow-auto max-h-[70vh]">
+            <div className="task-modal-main flex-1 p-5 space-y-5 overflow-auto max-h-[60vh]">
 
               {liveTask.description && (
                 <div>
@@ -233,20 +251,17 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
                       <Avatar className="h-7 w-7 shrink-0 mt-0.5">
                         <AvatarFallback className="bg-violet-100 text-violet-700 text-[10px] font-bold">{initials(comment.author?.name || '')}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1 bg-slate-50 rounded-xl px-3 py-2">
-                        <div className="flex items-center gap-2 mb-1">
+                      <div className="flex-1 bg-slate-50 rounded-xl px-3 py-2 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-xs font-semibold text-slate-700">{comment.author?.name}</span>
                           <span className="text-[10px] text-slate-400">{format(new Date(comment.createdAt), 'MMM d, h:mm a')}</span>
                           {(comment.authorId === user?.id || isPM) && (
-                            <button
-                              onClick={() => handleDeleteComment(comment.id)}
-                              className="ml-auto opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all"
-                            >
+                            <button onClick={() => handleDeleteComment(comment.id)} className="ml-auto opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
                               <X className="w-3 h-3" />
                             </button>
                           )}
                         </div>
-                        <p className="text-sm text-slate-600">{comment.content}</p>
+                        <p className="text-sm text-slate-600 break-words">{comment.content}</p>
                       </div>
                     </div>
                   ))}
@@ -274,8 +289,8 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
                         <Avatar className="h-5 w-5 shrink-0">
                           <AvatarFallback className="bg-slate-200 text-slate-600 text-[9px]">{initials(log.user?.name || '')}</AvatarFallback>
                         </Avatar>
-                        <span><strong className="text-slate-700">{log.user?.name}</strong> {log.action}</span>
-                        <span className="ml-auto shrink-0">{format(new Date(log.createdAt), 'MMM d')}</span>
+                        <span className="flex-1 min-w-0"><strong className="text-slate-700">{log.user?.name}</strong> {log.action}</span>
+                        <span className="shrink-0">{format(new Date(log.createdAt), 'MMM d')}</span>
                       </div>
                     ))}
                   </div>
@@ -284,41 +299,43 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
             </div>
 
             {/* Right: meta sidebar */}
-            <div className="w-52 p-5 space-y-4 shrink-0">
-              <MetaItem icon={<User className="w-3.5 h-3.5" />} label="Assignees">
-                {(liveTask.assignees || []).length > 0 ? (
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {(liveTask.assignees || []).map((a: any) => (
-                      <div key={a.id} className="flex items-center gap-1.5 bg-slate-50 rounded-full px-2 py-0.5">
-                        <Avatar className="h-4 w-4">
-                          <AvatarFallback className="bg-blue-500 text-white text-[8px]">{initials(a.user?.name || '')}</AvatarFallback>
-                        </Avatar>
-                        <span className="text-xs text-slate-600">{a.user?.name?.split(' ')[0]}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : <span className="text-xs text-slate-400">Unassigned</span>}
-              </MetaItem>
-
-              <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Sprint">
-                <span className="text-xs text-slate-700">{(liveTask as any).sprint?.name || <span className="text-slate-400">No sprint</span>}</span>
-              </MetaItem>
-
-              {liveTask.dueDate && (
-                <MetaItem icon={<Clock className="w-3.5 h-3.5" />} label="Due date">
-                  <span className="text-xs text-slate-700">{format(new Date(liveTask.dueDate), 'MMM d, yyyy')}</span>
+            <div className="task-modal-sidebar w-52 p-5 space-y-4 shrink-0">
+              <div className="task-modal-sidebar-grid">
+                <MetaItem icon={<User className="w-3.5 h-3.5" />} label="Assignees">
+                  {(liveTask.assignees || []).length > 0 ? (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {(liveTask.assignees || []).map((a: any) => (
+                        <div key={a.id} className="flex items-center gap-1.5 bg-slate-50 rounded-full px-2 py-0.5">
+                          <Avatar className="h-4 w-4">
+                            <AvatarFallback className="bg-blue-500 text-white text-[8px]">{initials(a.user?.name || '')}</AvatarFallback>
+                          </Avatar>
+                          <span className="text-xs text-slate-600">{a.user?.name?.split(' ')[0]}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : <span className="text-xs text-slate-400">Unassigned</span>}
                 </MetaItem>
-              )}
 
-              {liveTask.storyPoints != null && (
-                <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Story points">
-                  <span className="text-xs font-bold text-slate-700">{liveTask.storyPoints} pts</span>
+                <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Sprint">
+                  <span className="text-xs text-slate-700">{(liveTask as any).sprint?.name || <span className="text-slate-400">No sprint</span>}</span>
                 </MetaItem>
-              )}
 
-              <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Column">
-                <span className="text-xs text-slate-700">{(liveTask as any).column?.name || '—'}</span>
-              </MetaItem>
+                {liveTask.dueDate && (
+                  <MetaItem icon={<Clock className="w-3.5 h-3.5" />} label="Due date">
+                    <span className="text-xs text-slate-700">{format(new Date(liveTask.dueDate), 'MMM d, yyyy')}</span>
+                  </MetaItem>
+                )}
+
+                {liveTask.storyPoints != null && (
+                  <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Story points">
+                    <span className="text-xs font-bold text-slate-700">{liveTask.storyPoints} pts</span>
+                  </MetaItem>
+                )}
+
+                <MetaItem icon={<Tag className="w-3.5 h-3.5" />} label="Column">
+                  <span className="text-xs text-slate-700">{(liveTask as any).column?.name || '—'}</span>
+                </MetaItem>
+              </div>
             </div>
           </div>
         </div>
@@ -330,25 +347,21 @@ export function TaskModal({ task, boardId, onClose }: TaskModalProps) {
           columnId={liveTask.columnId}
           open={showEdit}
           onClose={async () => {
-  setShowEdit(false);
-  try {
-    const fresh = await api.get(`/api/boards/${boardId}/tasks/${liveTask.id}`);
-    const { tasks: allTasks } = useBoardStore.getState();
-    useBoardStore.setState({
-      tasks: allTasks.map(t => t.id === liveTask.id ? fresh.data.data : t),
-    });
-  } catch {}
-}}
+            setShowEdit(false);
+            try {
+              const fresh = await api.get(`/api/boards/${boardId}/tasks/${liveTask.id}`);
+              const { tasks: allTasks } = useBoardStore.getState();
+              useBoardStore.setState({
+                tasks: allTasks.map(t => t.id === liveTask.id ? fresh.data.data : t),
+              });
+            } catch {}
+          }}
           editTask={liveTask}
         />
-        
       )}
-      
     </>
   );
 }
-
-// ─── Helper components ────────────────────────────────────────────────────────
 
 function MetaItem({ icon, label, children }: { icon: React.ReactNode; label: string; children: React.ReactNode }) {
   return (
