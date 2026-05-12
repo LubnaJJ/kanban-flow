@@ -1,11 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { UserPlus, Trash2, Users, Crown } from 'lucide-react';
+import { UserPlus, Trash2, Users, Crown, X } from 'lucide-react';
 import { useBoardStore } from '@/store/board.store';
 import { useAuthStore } from '@/store/auth.store';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/primitives';
 import { toast } from '@/hooks/use-toast';
 
@@ -42,78 +40,127 @@ export default function MembersPage() {
   }
 
   function initials(name: string) { return name?.split(' ').map(n => n[0]).join('').toUpperCase() || '?'; }
-  const roleColors = { PM: 'bg-blue-100 text-blue-700', ENGINEER: 'bg-violet-100 text-violet-700' };
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="border-b bg-white px-8 py-4 flex items-center justify-between">
-        <h2 className="font-semibold text-slate-800">Team Members <span className="text-slate-400 font-normal ml-1">({members.length})</span></h2>
-        {isPM && <Button onClick={() => setShowAdd(true)} size="sm" className="gap-1.5"><UserPlus className="w-4 h-4" />Add Member</Button>}
-      </div>
+    <div style={{ height: '100%', overflow: 'auto', background: '#f0f4fa', fontFamily: 'var(--font-sans)' }}>
+      <style>{`
+        .member-card { display:flex; align-items:center; gap:12px; padding:14px 16px; background:white; borderRadius:12px; border:1px solid rgba(0,0,0,0.08); transition:border-color 0.15s; }
+        .member-card:hover { border-color: rgba(0,0,0,0.16); }
+        @media (max-width: 480px) {
+          .members-header { padding: 12px 16px !important; }
+          .members-content { padding: 16px !important; }
+          .member-email { display: none !important; }
+          .member-role { font-size: 10px !important; padding: 2px 8px !important; }
+        }
+      `}</style>
 
-      <div className="p-8 max-w-2xl">
-        {members.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">
-            <Users className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">No members yet</p>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {members.map(member => {
-              const isOwner = member.userId === currentBoard?.ownerId;
-              const isCurrentUser = member.userId === user?.id;
-              return (
-                <div key={member.id} className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:border-slate-300 transition-colors">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-violet-500 text-white font-bold">{initials(member.user?.name || '')}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-slate-900">{member.user?.name}</p>
-                      {isOwner && <span className="flex items-center gap-0.5 text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-1.5 py-0.5"><Crown className="w-3 h-3" />Owner</span>}
-                      {isCurrentUser && <span className="text-[10px] text-slate-400 bg-slate-100 rounded-full px-1.5 py-0.5">You</span>}
-                    </div>
-                    <p className="text-sm text-slate-500">{member.user?.email}</p>
-                  </div>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${roleColors[member.user?.role as keyof typeof roleColors] || 'bg-slate-100 text-slate-600'}`}>
-                    {member.user?.role}
-                  </span>
-                  {isPM && !isOwner && (
-                    <button onClick={() => handleRemove(member.userId)} className="p-2 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+      {/* Header */}
+      <div className="members-header" style={{ background: 'white', borderBottom: '1px solid rgba(0,0,0,0.08)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, zIndex: 5 }}>
+        <h2 style={{ color: '#0d1b35', fontSize: '15px', fontWeight: 700, margin: 0 }}>
+          Team Members <span style={{ color: '#94a3b8', fontWeight: 400 }}>({members.length})</span>
+        </h2>
+        {isPM && (
+          <button onClick={() => setShowAdd(true)}
+            style={{ height: '34px', padding: '0 14px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '6px', background: 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '12px', border: 'none', cursor: 'pointer' }}>
+            <UserPlus size={14} /> Add Member
+          </button>
         )}
       </div>
 
-      {/* Add member dialog */}
-      <Dialog open={showAdd} onOpenChange={setShowAdd}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Add team member</DialogTitle></DialogHeader>
-          <div className="mt-2 space-y-2 max-h-80 overflow-auto">
-            {nonMembers.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-6">All users are already members</p>
-            ) : nonMembers.map(u => (
-              <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 transition-colors">
-                <Avatar className="h-9 w-9">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-400 to-violet-500 text-white text-sm font-bold">{initials(u.name)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm text-slate-900">{u.name}</p>
-                  <p className="text-xs text-slate-500">{u.email} · {u.role}</p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => handleAdd(u.id)} disabled={adding === u.id} className="shrink-0">
-                  {adding === u.id ? 'Adding...' : 'Add'}
-                </Button>
-              </div>
-            ))}
+      {/* Content */}
+      <div className="members-content" style={{ padding: '20px 24px', maxWidth: '640px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {members.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '80px 20px' }}>
+            <Users size={32} style={{ color: '#94a3b8', margin: '0 auto 12px', display: 'block' }} />
+            <p style={{ color: '#64748b', fontWeight: 600, margin: 0 }}>No members yet</p>
           </div>
-        </DialogContent>
-      </Dialog>
+        ) : members.map(member => {
+          const isOwner = member.userId === currentBoard?.ownerId;
+          const isCurrentUser = member.userId === user?.id;
+          const roleColor = member.user?.role === 'PM'
+            ? { bg: '#dbeafe', color: '#2563eb' }
+            : { bg: '#ede9fe', color: '#7c3aed' };
+
+          return (
+            <div key={member.id} className="member-card">
+              <Avatar className="h-10 w-10" style={{ flexShrink: 0 }}>
+                <AvatarFallback style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: 'white', fontWeight: 700, fontSize: '14px' }}>
+                  {initials(member.user?.name || '')}
+                </AvatarFallback>
+              </Avatar>
+
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '2px' }}>
+                  <span style={{ color: '#0d1b35', fontWeight: 600, fontSize: '14px' }}>{member.user?.name}</span>
+                  {isOwner && (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '3px', fontSize: '10px', fontWeight: 700, color: '#d97706', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '20px', padding: '2px 7px' }}>
+                      <Crown size={10} /> Owner
+                    </span>
+                  )}
+                  {isCurrentUser && (
+                    <span style={{ fontSize: '10px', color: '#94a3b8', background: '#f1f5f9', borderRadius: '20px', padding: '2px 7px' }}>You</span>
+                  )}
+                </div>
+                <p className="member-email" style={{ color: '#94a3b8', fontSize: '12px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {member.user?.email}
+                </p>
+              </div>
+
+              <span className="member-role" style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: roleColor.bg, color: roleColor.color, flexShrink: 0 }}>
+                {member.user?.role}
+              </span>
+
+              {isPM && !isOwner && (
+                <button onClick={() => handleRemove(member.userId)}
+                  style={{ width: '30px', height: '30px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid rgba(0,0,0,0.08)', color: '#94a3b8', cursor: 'pointer', flexShrink: 0, transition: 'all 0.15s' }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)'; e.currentTarget.style.background = '#fef2f2'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'; e.currentTarget.style.background = 'transparent'; }}>
+                  <Trash2 size={13} />
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Add member modal */}
+      {showAdd && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', background: 'rgba(0,0,0,0.5)' }}
+          onClick={() => setShowAdd(false)}>
+          <div onClick={e => e.stopPropagation()}
+            style={{ width: '100%', maxWidth: '440px', background: 'white', borderRadius: '16px', padding: '24px', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 30px 80px rgba(0,0,0,0.2)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <h2 style={{ color: '#0d1b35', fontSize: '16px', fontWeight: 700, margin: 0 }}>Add team member</h2>
+              <button onClick={() => setShowAdd(false)}
+                style={{ width: '28px', height: '28px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', border: '1px solid rgba(0,0,0,0.08)', cursor: 'pointer', color: '#94a3b8' }}>
+                <X size={14} />
+              </button>
+            </div>
+
+            <div style={{ overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {nonMembers.length === 0 ? (
+                <p style={{ color: '#94a3b8', fontSize: '13px', textAlign: 'center', padding: '24px 0' }}>All users are already members</p>
+              ) : nonMembers.map(u => (
+                <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '10px', border: '1px solid rgba(0,0,0,0.08)', background: '#fafafa' }}>
+                  <Avatar className="h-9 w-9" style={{ flexShrink: 0 }}>
+                    <AvatarFallback style={{ background: 'linear-gradient(135deg,#6366f1,#8b5cf6)', color: 'white', fontWeight: 700, fontSize: '13px' }}>
+                      {initials(u.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ color: '#0d1b35', fontWeight: 600, fontSize: '13px', margin: '0 0 2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.name}</p>
+                    <p style={{ color: '#94a3b8', fontSize: '11px', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{u.email} · {u.role}</p>
+                  </div>
+                  <button onClick={() => handleAdd(u.id)} disabled={adding === u.id}
+                    style={{ height: '30px', padding: '0 14px', borderRadius: '8px', background: adding === u.id ? 'rgba(245,196,0,0.4)' : 'linear-gradient(135deg,#F5C400,#e6b800)', color: '#060e1c', fontWeight: 700, fontSize: '12px', border: 'none', cursor: 'pointer', flexShrink: 0 }}>
+                    {adding === u.id ? '...' : 'Add'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
